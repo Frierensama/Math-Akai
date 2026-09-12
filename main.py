@@ -4,41 +4,22 @@ import time
 
 st.set_page_config(page_title='𝙰𝚔𝚊𝚒',page_icon='🍥',layout="centered")
 
-# session state vars
-
-if "game_state" not in st.session_state:
-    st.session_state.game_state = "setup"
-
-if "numbers" not in st.session_state:
-    st.session_state.numbers = []
-
-if "current_index" not in st.session_state:
-    st.session_state.current_index = 0
-
-if "correct_answer" not in st.session_state:
-    st.session_state.correct_answer = 0
-
-if "start_time" not in st.session_state:
-    st.session_state.start_time = None
-
-if "user_answer" not in st.session_state:
-    st.session_state.user_answer = None
-
-if "result" not in st.session_state:
-    st.session_state.result = None
-
-if 'digit_index' not in st.session_state:
-    st.session_state.digit_index = 0
-
-if 'number_count' not in st.session_state:
-    st.session_state.number_count = 2
-
-if 'speed' not in st.session_state:
-    st.session_state.speed = 1.0
-
-if 'operation_index' not in st.session_state:
-    st.session_state.operation_index = 0
-
+defaults = {
+    "game_state": "setup",
+    "numbers": [],
+    "current_index": 0,
+    "correct_answer": 0,
+    "start_time": None,
+    "user_answer": None,
+    "result": None,
+    "digit_index": 0,
+    "number_count": 2,
+    "speed": 1.0,
+    "operation_index": 0,
+}
+for k, v in defaults.items():
+    if k not in st.session_state:
+        st.session_state[k] = v
 
 # gen number
 def generate_number(digits, operation):
@@ -64,43 +45,56 @@ def reset_game():
     st.session_state.user_answer = None
     st.session_state.result = None
 
-st.markdown(
-    """
-    <script>
-        document.title = "𝙰𝚔𝚊𝚒";
-    </script>
-    """,
-    unsafe_allow_html=True
-)
-
+# ---------- global CSS ----------
 st.markdown("""
 <style>
+/* Hide Streamlit chrome */
+header {visibility: hidden;}
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+.stDeployButton {display:none;}
 
+/* Remove extra padding on mobile */
+.block-container {
+    padding-top: 0.8rem !important;
+    padding-bottom: 0.5rem !important;
+    max-width: 100% !important;
+}
+
+/* Big number */
 .number {
-    height: 65vh;
+    height: 78vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 220px;
+    font-size: clamp(80px, 28vw, 220px);
     font-weight: 700;
     line-height: 1;
+    margin: 0;
+    padding: 0;
 }
 
 .number-count {
     text-align: center;
-    font-size: 20px;
+    font-size: 1.1rem;
     font-weight: 500;
+    margin: 0.3rem 0 0.2rem 0;
 }
 
 .calculation {
     text-align: center;
-    font-size: 28px;
+    font-size: 1.3rem;
     font-weight: 600;
-    padding: 20px;
+    padding: 12px;
     overflow-x: auto;
     white-space: nowrap;
 }
 
+/* Make buttons a bit bigger on mobile */
+.stButton > button {
+    height: 3rem;
+    font-size: 1.1rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -239,14 +233,10 @@ elif st.session_state.game_state == "playing":
     time.sleep(0.11)
 
     if current_index < total_numbers - 1:
-
         st.session_state.current_index += 1
         st.session_state.start_time = time.time()
-
         st.rerun()
-
     else:
-
         st.session_state.game_state = "answer"
         st.rerun()
 
