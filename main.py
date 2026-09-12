@@ -264,7 +264,7 @@ elif st.session_state.game_state == "result":
     if st.session_state.result == "correct":
         st.success(f"Well done lil vro. correct answer: {correct_answer}")
     else:
-        st.error(f"Try again lil vro, your answer: {user_answer}")
+        st.error(f"Nice Try lil vro, your answer: {user_answer}")
         st.info(f"Correct answer: {correct_answer}")
 
     st.divider()
