@@ -119,7 +119,7 @@ footer {visibility: hidden;}
 if st.session_state.game_state == "setup":
 
     st.title("Meth Test")
-    st.caption("Mental math flash")
+    st.caption("bleh bleh bleh")
 
     operation = st.selectbox(
         "Operation",
