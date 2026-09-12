@@ -180,6 +180,18 @@ if st.session_state.game_state == "setup":
         st.rerun()
 
 elif st.session_state.game_state == "playing":
+    
+    st.markdown(
+        """
+        <script>
+            window.parent.scrollTo({
+                top: 0,
+                behavior: "instant"
+            });
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
 
     numbers = st.session_state.numbers
     current_index = st.session_state.current_index
@@ -201,10 +213,13 @@ elif st.session_state.game_state == "playing":
         unsafe_allow_html=True
     )
 
-    # Current number
+    # Create one placeholder
+    number_placeholder = st.empty()
+
+    # Show number
     current_number = numbers[current_index]
 
-    st.markdown(
+    number_placeholder.markdown(
         f"""
         <div class="number">
             {current_number}
@@ -213,23 +228,30 @@ elif st.session_state.game_state == "playing":
         unsafe_allow_html=True
     )
 
-    # timer
-    elapsed = time.time() - st.session_state.start_time
-    remaining = speed - elapsed
+    time.sleep(speed)
 
-    if remaining > 0:
-        time.sleep(min(0.05, remaining))
+
+    number_placeholder.markdown(
+        f"""
+        <div class="number">
+            
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    time.sleep(0.11)
+
+    if current_index < total_numbers - 1:
+
+        st.session_state.current_index += 1
+        st.session_state.start_time = time.time()
+
         st.rerun()
+
     else:
 
-        if current_index < total_numbers - 1:
-            st.session_state.current_index += 1
-            st.session_state.start_time = time.time()
-            st.rerun()
-        else:
-            st.session_state.game_state = "answer"
-            st.rerun()
-
+        st.session_state.game_state = "answer"
+        st.rerun()
 
 # submit answer
 elif st.session_state.game_state == "answer":
