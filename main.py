@@ -128,19 +128,19 @@ if st.session_state.game_state == "setup":
     )
 
     digits = st.selectbox(
-        "Digits (1-5)",
+        "Digits [1-5]",
         [1, 2, 3, 4, 5],
         index=st.session_state.digit_index
     )
 
     number_count = st.number_input(
-        "How many numbers",
+        "Numbers [2-100]",
         min_value=2, max_value=100,
         value=st.session_state.number_count, step=1
     )
 
     speed = st.number_input(
-        "Speed (seconds)",
+        "Speed [seconds]",
         min_value=0.1, max_value=11.0,
         value=st.session_state.speed, step=0.1, format="%.1f"
     )
