@@ -64,6 +64,14 @@ def reset_game():
     st.session_state.user_answer = None
     st.session_state.result = None
 
+st.markdown(
+    """
+    <script>
+        document.title = "𝙰𝚔𝚊𝚒";
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
 st.markdown("""
 <style>
