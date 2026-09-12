@@ -77,12 +77,13 @@ st.markdown("""
 <style>
 
 .number {
-    font-size: 180px;
+    height: 65vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 220px;
     font-weight: 700;
-    text-align: center;
     line-height: 1;
-    margin-top: 20vh;
-    margin-bottom: 20vh;
 }
 
 .number-count {
@@ -104,11 +105,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-st.title("Meth Test")
-
 # page setup --game state
 if st.session_state.game_state == "setup":
 
+    st.title("Meth Test")
     st.subheader("Settings")
 
     operation = st.selectbox(
@@ -187,6 +187,10 @@ elif st.session_state.game_state == "playing":
 
     total_numbers = len(numbers)
 
+    if st.button("exit",  use_container_width=True, type="primary"):
+        reset_game()
+        st.rerun()
+    
     # Number counter
     st.markdown(
         f"""
