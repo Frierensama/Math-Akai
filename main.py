@@ -2,8 +2,9 @@ import streamlit as st
 import random
 import time
 
-st.set_page_config(page_title='𝙰𝚔𝚊𝚒',page_icon='🍥',layout="centered")
+st.set_page_config( page_title='𝙰𝚔𝚊𝚒', page_icon='🍥', layout="centered", initial_sidebar_state="collapsed")
 
+# session default variables
 defaults = {
     "game_state": "setup",
     "numbers": [],
@@ -21,22 +22,18 @@ for k, v in defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
-# gen number
-def generate_number(digits, operation):
 
+def generate_number(digits, operation):
     minimum = 10 ** (digits - 1)
     maximum = (10 ** digits) - 1
-
     number = random.randint(minimum, maximum)
-
     if operation == "Addition":
         return number
-
     return number * random.choice([1, -1])
 
-# rest game
-def reset_game():
 
+def reset_game():
+    """Full reset -- go back to setup"""
     st.session_state.game_state = "setup"
     st.session_state.numbers = []
     st.session_state.current_index = 0
@@ -45,7 +42,26 @@ def reset_game():
     st.session_state.user_answer = None
     st.session_state.result = None
 
-# ---------- global CSS ----------
+
+def start_new_round():
+    """Start a new game with the CURRENT saved settings"""
+    operation = "Addition" if st.session_state.operation_index == 0 else "Addition & Subtraction"
+    digits = st.session_state.digit_index + 1
+    number_count = st.session_state.number_count
+    speed = st.session_state.speed
+
+    numbers = [generate_number(digits, operation) for _ in range(number_count)]
+    
+    st.session_state.numbers = numbers
+    st.session_state.correct_answer = sum(numbers)
+    st.session_state.current_index = 0
+    st.session_state.start_time = time.time()
+    st.session_state.user_answer = None
+    st.session_state.result = None
+    st.session_state.game_state = "playing"
+
+
+# cc
 st.markdown("""
 <style>
 /* Hide Streamlit chrome */
@@ -99,213 +115,158 @@ footer {visibility: hidden;}
 """, unsafe_allow_html=True)
 
 
-# page setup --game state
+# set up
 if st.session_state.game_state == "setup":
 
     st.title("Meth Test")
-    st.subheader("Settings")
+    st.caption("Mental math flash")
 
     operation = st.selectbox(
-        "Operation type",
-        [
-            "Addition",
-            "Addition & Subtraction"
-        ],
+        "Operation",
+        ["Addition", "Addition & Subtraction"],
         index=st.session_state.operation_index
     )
 
     digits = st.selectbox(
-        "Digits length [1-5]",
+        "Digits (1-5)",
         [1, 2, 3, 4, 5],
         index=st.session_state.digit_index
     )
 
     number_count = st.number_input(
-        "Numbers count [2-100]", value=st.session_state.number_count,
-        min_value=2,
-        max_value=100,
-        step=1
+        "How many numbers",
+        min_value=2, max_value=100,
+        value=st.session_state.number_count, step=1
     )
 
     speed = st.number_input(
-        "Speed [seconds]",
-        min_value=0.1,
-        max_value=11.0,
-        value=st.session_state.speed,
-        step=0.1,
-        format="%.1f"
+        "Speed (seconds)",
+        min_value=0.1, max_value=11.0,
+        value=st.session_state.speed, step=0.1, format="%.1f"
     )
 
-    st.divider()
+    st.write("")
 
-    col1, col2 = st.columns(2)
+    if st.button("Start Game", use_container_width=True, type="primary"):
 
-    with col1:
-        st.write(f"**Operation:** {operation}")
-        st.write(f"**Digits:** {digits}")
-    
-    with col2:
-        st.write(f"**Numbers:** {number_count}")
-        st.write(f"**Speed:** {speed:.1f} sec")
-
-    st.divider()
-
-    if st.button(
-        "Start Game",
-        use_container_width=True,
-        type="primary"
-    ):
-
-        numbers = [
-            generate_number(digits, operation)
-            for _ in range(number_count)
-        ]
-
-        st.session_state.numbers = numbers
-        st.session_state.correct_answer = sum(numbers)
-        st.session_state.operation_index = 0 if operation == 'Addition' else 1
-        st.session_state.digit_index =  int(digits) - 1
+        st.session_state.operation_index = 0 if operation == "Addition" else 1
+        st.session_state.digit_index = digits - 1
         st.session_state.number_count = number_count
-        st.session_state.current_index = 0
-        st.session_state.start_time = time.time()
         st.session_state.speed = speed
-        st.session_state.game_state = "playing"
-
+        
+        start_new_round()
         st.rerun()
 
+
+# display numbers
 elif st.session_state.game_state == "playing":
-    
-    st.markdown(
-            """
-            <script>
-                window.parent.scrollTo(0, 0);
-            </script>
-            """,
-            unsafe_allow_html=True
-        )
+
+    # Force scroll to top snipt
+    st.markdown("""
+        <script>
+            window.parent.document.querySelector('section.main').scrollTo(0, 0);
+            window.scrollTo(0, 0);
+        </script>
+    """, unsafe_allow_html=True)
 
     numbers = st.session_state.numbers
     current_index = st.session_state.current_index
     speed = st.session_state.speed
+    total = len(numbers)
 
-    total_numbers = len(numbers)
+    # Tiny top bar: Exit + counter
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        if st.button("Exit", use_container_width=True, type='primary'):
+            reset_game()
+            st.rerun()
+    with col2:
+        st.markdown(
+            f'<div class="number-count">{current_index + 1} / {total}</div>',
+            unsafe_allow_html=True
+        )
 
-    if st.button("exit",  use_container_width=True, type="primary"):
-        reset_game()
-        st.rerun()
-    
-    # Number counter
-    st.markdown(
-        f"""
-        <div class="number-count">
-            {current_index + 1} / {total_numbers}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # Create one placeholder
+    # big number area
     number_placeholder = st.empty()
-
-    # Show number
     current_number = numbers[current_index]
 
     number_placeholder.markdown(
-        f"""
-        <div class="number">
-            {current_number}
-        </div>
-        """,
+        f'<div class="number">{current_number}</div>',
         unsafe_allow_html=True
     )
 
     time.sleep(speed)
 
+    # blank transition
+    number_placeholder.markdown('<div class="number"></div>', unsafe_allow_html=True)
+    time.sleep(0.12)
 
-    number_placeholder.markdown(
-        f"""
-        <div class="number">
-            
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    time.sleep(0.11)
-
-    if current_index < total_numbers - 1:
+    if current_index < total - 1:
         st.session_state.current_index += 1
-        st.session_state.start_time = time.time()
         st.rerun()
     else:
         st.session_state.game_state = "answer"
         st.rerun()
 
+
 # submit answer
 elif st.session_state.game_state == "answer":
 
-    st.subheader("Solution")
-    st.write("What is the total?")
-
-    user_answer = st.number_input("Enter your answer",
-        value=None,
-        step=1,
-        placeholder="3220"
+    st.subheader("total ballz?")
+    user_answer = st.number_input(
+        "3220",
+        value=None, step=1, placeholder="type here…",
+        label_visibility="collapsed"
     )
 
-    if st.button( "Submit", use_container_width=True, type="primary"):
-
+    if st.button("Submit", use_container_width=True, type="primary"):
         if user_answer is None:
-            st.warning("you got no ballz? enter a value lil vro")
+            st.warning("no ballz. enter a number")
         else:
             st.session_state.user_answer = int(user_answer)
-
-            if int(user_answer) == st.session_state.correct_answer:
-                st.session_state.result = "correct"
-            else:
-                st.session_state.result = "wrong"
-
+            st.session_state.result = (
+                "correct" if int(user_answer) == st.session_state.correct_answer
+                else "wrong"
+            )
             st.session_state.game_state = "result"
             st.rerun()
 
 
+# result
 elif st.session_state.game_state == "result":
 
-    correct_answer = st.session_state.correct_answer
-    user_answer = st.session_state.user_answer
+    correct = st.session_state.correct_answer
+    user = st.session_state.user_answer
     numbers = st.session_state.numbers
 
     if st.session_state.result == "correct":
-        st.success(f"Well done lil vro. correct answer: {correct_answer}")
+        st.success(f"Well done! Lil Vro, your answer: {correct}")
     else:
-        st.error(f"Nice Try lil vro, your answer: {user_answer}")
-        st.info(f"Correct answer: {correct_answer}")
+        st.error(f"Nice Try Lil Vro, your answer: {user}")
+        st.info(f"Correct answer: {correct}")
 
-    st.divider()
 
-    calculation = ""
-
-    for i, number in enumerate(numbers):
-
+    calc = ""
+    for i, n in enumerate(numbers):
         if i == 0:
-            calculation = str(number)
-        elif number >= 0:
-            calculation += f" + {number}"
+            calc = str(n)
+        elif n >= 0:
+            calc += f" + {n}"
         else:
-            calculation += f" - {abs(number)}"
+            calc += f" - {abs(n)}"
+    calc += f" = {correct}"
 
-    calculation += f" = {correct_answer}"
+    st.markdown(f'<div class="calculation">{calc}</div>', unsafe_allow_html=True)
+    st.write("")
 
-    st.markdown(
-        f"""
-        <div class="calculation">
-            {calculation}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
-    st.divider()
+    col1, col2 = st.columns(2)
 
-    if st.button( "Re-Try", use_container_width=True,type="primary"):
-        reset_game()
-        st.rerun()
+    with col1:
+        if st.button("Play Again", use_container_width=True, type="primary"):
+            start_new_round()
+            st.rerun()
+    with col2:
+        if st.button("Home", use_container_width=True):
+            reset_game()
+            st.rerun()
