@@ -182,16 +182,13 @@ if st.session_state.game_state == "setup":
 elif st.session_state.game_state == "playing":
     
     st.markdown(
-        """
-        <script>
-            window.parent.scrollTo({
-                top: 0,
-                behavior: "instant"
-            });
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
+            """
+            <script>
+                window.parent.scrollTo(0, 0);
+            </script>
+            """,
+            unsafe_allow_html=True
+        )
 
     numbers = st.session_state.numbers
     current_index = st.session_state.current_index
