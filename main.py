@@ -60,6 +60,13 @@ def start_new_round():
     st.session_state.result = None
     st.session_state.game_state = "playing"
 
+def replay_same_numbers():
+    """Replay the exact same numbers from the start"""
+    st.session_state.current_index = 0
+    st.session_state.user_answer = None
+    st.session_state.result = None
+    st.session_state.start_time = time.time()
+    st.session_state.game_state = "playing"
 
 # cc
 st.markdown("""
@@ -174,18 +181,23 @@ elif st.session_state.game_state == "playing":
     speed = st.session_state.speed
     total = len(numbers)
 
-    # Tiny top bar: Exit + counter
-    col1, col2 = st.columns([1, 3])
+    col1, col2, col3 = st.columns([1, 1, 2])
+    
     with col1:
         if st.button("Exit", use_container_width=True, type='primary'):
             reset_game()
             st.rerun()
+            
     with col2:
+        if st.button("Replay", use_container_width=True,type='secondary'):
+            replay_same_numbers()
+            st.rerun()
+            
+    with col3:
         st.markdown(
             f'<div class="number-count">{current_index + 1} / {total}</div>',
             unsafe_allow_html=True
         )
-
     # big number area
     number_placeholder = st.empty()
     current_number = numbers[current_index]
@@ -219,18 +231,24 @@ elif st.session_state.game_state == "answer":
         label_visibility="collapsed"
     )
 
-    if st.button("Submit", use_container_width=True, type="primary"):
-        if user_answer is None:
-            st.warning("no ballz. enter a number")
-        else:
-            st.session_state.user_answer = int(user_answer)
-            st.session_state.result = (
-                "correct" if int(user_answer) == st.session_state.correct_answer
-                else "wrong"
-            )
-            st.session_state.game_state = "result"
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("Submit", use_container_width=True, type="primary"):
+            if user_answer is None:
+                st.warning("no ballz. enter a number")
+            else:
+                st.session_state.user_answer = int(user_answer)
+                st.session_state.result = (
+                    "correct" if int(user_answer) == st.session_state.correct_answer
+                    else "wrong"
+                )
+                st.session_state.game_state = "result"
+                st.rerun()            
+    with col2:
+        if st.button("Replay", use_container_width=True, type='secondary'):
+            replay_same_numbers()
             st.rerun()
-
 
 # result
 elif st.session_state.game_state == "result":
