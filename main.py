@@ -65,7 +65,7 @@ def replay_same_numbers():
     st.session_state.current_index = 0
     st.session_state.user_answer = None
     st.session_state.result = None
-    st.session_state.start_time = time.time()
+    st.session_state.start_time = time.time() #not using this var for now
     st.session_state.game_state = "playing"
 
 # cc
