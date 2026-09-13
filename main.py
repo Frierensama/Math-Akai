@@ -126,7 +126,6 @@ footer {visibility: hidden;}
 if st.session_state.game_state == "setup":
 
     st.title("Meth Test")
-    st.caption("bleh bleh bleh")
 
     operation = st.selectbox(
         "Operation",
@@ -224,7 +223,7 @@ elif st.session_state.game_state == "playing":
 # submit answer
 elif st.session_state.game_state == "answer":
 
-    st.subheader("total ballz?")
+    st.subheader("What is the total?")
     user_answer = st.number_input(
         "3220",
         value=None, step=1, placeholder="type here…",
@@ -236,7 +235,7 @@ elif st.session_state.game_state == "answer":
     with col1:
         if st.button("Submit", use_container_width=True, type="primary"):
             if user_answer is None:
-                st.warning("no ballz. enter a number")
+                st.warning("No Ballz. Enter a number")
             else:
                 st.session_state.user_answer = int(user_answer)
                 st.session_state.result = (
