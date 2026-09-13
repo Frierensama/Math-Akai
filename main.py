@@ -257,10 +257,10 @@ elif st.session_state.game_state == "result":
     numbers = st.session_state.numbers
 
     if st.session_state.result == "correct":
-        st.success(f"Well done! Lil Vro, your answer: {correct}")
+        st.success(f"**Well done! Lil Vro, your answer: {correct}**")
     else:
-        st.error(f"Nice Try Lil Vro, your answer: {user}")
-        st.info(f"Correct answer: {correct}")
+        st.error(f"**Nice Try Lil Vro, your answer: {user}**")
+        st.info(f"**Correct answer: {correct}**")
 
 
     calc = ""
@@ -276,14 +276,16 @@ elif st.session_state.game_state == "result":
     st.markdown(f'<div class="calculation">{calc}</div>', unsafe_allow_html=True)
     st.write("")
 
+    st.write(f'Play Again - **New Game starts with same settings [digits:{st.session_state.digit_index+1}, count:{st.session_state.number_count}, speed:{st.session_state.speed}]**')
+    st.write('Home - **Goes back to setting page**')
 
     col1, col2 = st.columns(2)
 
     with col1:
-        if st.button("Play Again", use_container_width=True, type="primary"):
+        if st.button("**Play Again**", use_container_width=True, type="primary"):
             start_new_round()
             st.rerun()
     with col2:
-        if st.button("Home", use_container_width=True):
+        if st.button("**Home**", use_container_width=True):
             reset_game()
             st.rerun()
